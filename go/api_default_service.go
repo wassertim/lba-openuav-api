@@ -38,29 +38,17 @@ func (s *DefaultApiService) GetAllQuestions(ctx context.Context) (ImplResponse, 
 	collection := s.mongoClient.Database("lba").Collection("questions-all")
 	results := []*Question{}
 	findOptions := options.Find()
-	//allQuery := bson.D{{}}
-	query := bson.D{{
-		"answers.correctAnswer",
-		bson.D{{"$ne",
-			true,
-		}},
-	}}
-	cur, err := collection.Find(context.TODO(), query, findOptions)
+	allQuery := bson.D{{}}
+	cur, err := collection.Find(context.TODO(), allQuery, findOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Finding multiple documents returns a cursor
-	// Iterating through the cursor allows us to decode documents one at a time
 	for cur.Next(context.TODO()) {
-
-		// create a value into which the single document can be decoded
 		var elem Question
 		err := cur.Decode(&elem)
 		if err != nil {
 			log.Fatal(err)
 		}
-
 		results = append(results, &elem)
 	}
 

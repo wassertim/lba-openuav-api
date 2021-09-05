@@ -11,22 +11,21 @@ package openapi
 
 type Question struct {
 
-	Id int32 `json:"id,omitempty"`
+	QuestionId int32 `json:"id,omitempty"`
 
-	Text string `json:"text,omitempty"`
+	QuestionText string `json:"questionText,omitempty"`
 
 	QuestionType string `json:"questionType,omitempty"`
 
-	Structure QuestionStructure `json:"structure,omitempty"`
+	StructureText string `json:"questionStructure,omitempty"`
+
+	StructureId int32 `json:"structureId,omitempty"`
 
 	Answers []QuestionAnswer `json:"answers,omitempty"`
 }
 
 // AssertQuestionRequired checks if the required fields are not zero-ed
 func AssertQuestionRequired(obj Question) error {
-	if err := AssertQuestionStructureRequired(obj.Structure); err != nil {
-		return err
-	}
 	for _, el := range obj.Answers {
 		if err := AssertQuestionAnswerRequired(el); err != nil {
 			return err
