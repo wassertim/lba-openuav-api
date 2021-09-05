@@ -36,17 +36,16 @@ func NewDefaultApiService(mongoClient *mongo.Client) DefaultApiServicer {
 // GetAllQuestions -
 func (s *DefaultApiService) GetAllQuestions(ctx context.Context) (ImplResponse, error) {
 	collection := s.mongoClient.Database("lba").Collection("questions-all")
-	var results []*Question
+	results := []*Question{}
 	findOptions := options.Find()
-	allQuery := bson.D{{}}
-	//query := bson.D{{
-	//	"answers",
-	//	bson.D{{
-	//		"$eq",
-	//		bson.E{},
-	//	}},
-	//}}
-	cur, err := collection.Find(context.TODO(), allQuery, findOptions)
+	//allQuery := bson.D{{}}
+	query := bson.D{{
+		"answers.correctAnswer",
+		bson.D{{"$ne",
+			true,
+		}},
+	}}
+	cur, err := collection.Find(context.TODO(), query, findOptions)
 	if err != nil {
 		log.Fatal(err)
 	}

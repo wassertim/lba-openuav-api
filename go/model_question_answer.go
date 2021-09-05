@@ -17,7 +17,7 @@ type QuestionAnswer struct {
 
 	GuessedAsCorrect *bool `json:"guessedAsCorrect,omitempty"`
 
-	IsCorrect *bool `json:"isCorrect,omitempty"`
+	CorrectAnswer *bool `json:"correctAnswer,omitempty"`
 }
 
 // AssertQuestionAnswerRequired checks if the required fields are not zero-ed
