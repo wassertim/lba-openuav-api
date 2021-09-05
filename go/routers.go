@@ -64,6 +64,7 @@ func EncodeJSONResponse(i interface{}, status *int, w http.ResponseWriter) error
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,OPTIONS")
 	if status != nil {
 		w.WriteHeader(*status)
 	} else {

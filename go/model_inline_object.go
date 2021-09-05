@@ -9,21 +9,21 @@
 
 package openapi
 
-type InlineObject struct {
+type AnswerPayload struct {
 
 	AnswerId int32 `json:"answerId,omitempty"`
 }
 
 // AssertInlineObjectRequired checks if the required fields are not zero-ed
-func AssertInlineObjectRequired(obj InlineObject) error {
+func AssertInlineObjectRequired(obj AnswerPayload) error {
 	return nil
 }
 
 // AssertRecurseInlineObjectRequired recursively checks if required fields are not zero-ed in a nested slice.
-// Accepts only nested slice of InlineObject (e.g. [][]InlineObject), otherwise ErrTypeAssertionError is thrown.
+// Accepts only nested slice of AnswerPayload (e.g. [][]AnswerPayload), otherwise ErrTypeAssertionError is thrown.
 func AssertRecurseInlineObjectRequired(objSlice interface{}) error {
 	return AssertRecurseInterfaceRequired(objSlice, func(obj interface{}) error {
-		aInlineObject, ok := obj.(InlineObject)
+		aInlineObject, ok := obj.(AnswerPayload)
 		if !ok {
 			return ErrTypeAssertionError
 		}

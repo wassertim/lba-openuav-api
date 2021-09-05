@@ -11,12 +11,10 @@ package openapi
 
 import (
 	"context"
-	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
-	"net/http"
 )
 
 // DefaultApiService is a service that implents the logic for the DefaultApiServicer
@@ -40,40 +38,45 @@ func (s *DefaultApiService) GetAllQuestions(ctx context.Context) (ImplResponse, 
 
 // GetOneQuestion -
 func (s *DefaultApiService) GetOneQuestion(ctx context.Context, type_ string) (ImplResponse, error) {
-	// TODO - update GetOneQuestion with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
-
-	//TODO: Uncomment the next line to return response Response(200, Question{}) or use other options such as http.Ok ...
-	return Response(200, Question{}), nil
+	question := findOne(s, bson.D{
+		{"answers.guessedAsCorrect", bson.D{{"$ne", true}}},
+		{"answers.correctAnswer", bson.D{{"$ne", true}}},
+	})
+	return Response(200, question), nil
 }
 
 // GetQuestionById -
 func (s *DefaultApiService) GetQuestionById(ctx context.Context, questionId int32) (ImplResponse, error) {
-	// TODO - update GetQuestionById with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
-
-	//TODO: Uncomment the next line to return response Response(200, Question{}) or use other options such as http.Ok ...
-	return Response(200, findOne(s, questionId)), nil
+	return Response(200, findOne(s, bson.D{{"_id", questionId}})), nil
 }
 
 // SetQuestionAnswered -
-func (s *DefaultApiService) SetQuestionAnswered(ctx context.Context, questionId int32, inlineObject InlineObject) (ImplResponse, error) {
-	// TODO - update SetQuestionAnswered with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
-
-	//TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
-	//return Response(204, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("SetQuestionAnswered method not implemented")
+func (s *DefaultApiService) SetQuestionAnswered(ctx context.Context, questionId int32, answer AnswerPayload) (ImplResponse, error) {
+	filter := bson.D{{"_id", questionId}, {"answers.id", answer.AnswerId}}
+	update := bson.D{
+		{"$set", bson.D{
+			{"answers.$.guessedAsCorrect", true},
+		}},
+	}
+	updateOne(s, filter, update)
+	return Response(204, nil), nil
 }
 
-func findOne(s *DefaultApiService, questionId int32) Question {
+func findOne(s *DefaultApiService, query bson.D) Question {
 	var elem Question
-	if err := s.db.FindOne(context.TODO(), bson.D{{"_id", questionId}}).Decode(&elem); err != nil {
+	if err := s.db.FindOne(context.TODO(), query).Decode(&elem); err != nil {
 		log.Fatal(err)
 	}
 
 	return elem
+}
+
+func updateOne(s *DefaultApiService, filter bson.D, update bson.D) *mongo.UpdateResult {
+	updateResult, err := s.db.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return updateResult
 }
 
 func find(s *DefaultApiService, allQuery bson.D, findOptions *options.FindOptions) []*Question {

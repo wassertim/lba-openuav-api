@@ -49,7 +49,7 @@ func NewDefaultApiController(s DefaultApiServicer, opts ...DefaultApiOption) Rou
 
 // Routes returns all of the api route for the DefaultApiController
 func (c *DefaultApiController) Routes() Routes {
-	return Routes{ 
+	return Routes{
 		{
 			"GetAllQuestions",
 			strings.ToUpper("Get"),
@@ -77,7 +77,7 @@ func (c *DefaultApiController) Routes() Routes {
 	}
 }
 
-// GetAllQuestions - 
+// GetAllQuestions -
 func (c *DefaultApiController) GetAllQuestions(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.GetAllQuestions(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -90,7 +90,7 @@ func (c *DefaultApiController) GetAllQuestions(w http.ResponseWriter, r *http.Re
 
 }
 
-// GetOneQuestion - 
+// GetOneQuestion -
 func (c *DefaultApiController) GetOneQuestion(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	type_ := query.Get("type")
@@ -105,7 +105,7 @@ func (c *DefaultApiController) GetOneQuestion(w http.ResponseWriter, r *http.Req
 
 }
 
-// GetQuestionById - 
+// GetQuestionById -
 func (c *DefaultApiController) GetQuestionById(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	questionId, err := parseInt32Parameter(params["questionId"], true)
@@ -125,7 +125,7 @@ func (c *DefaultApiController) GetQuestionById(w http.ResponseWriter, r *http.Re
 
 }
 
-// SetQuestionAnswered - 
+// SetQuestionAnswered -
 func (c *DefaultApiController) SetQuestionAnswered(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	questionId, err := parseInt32Parameter(params["questionId"], true)
@@ -134,7 +134,7 @@ func (c *DefaultApiController) SetQuestionAnswered(w http.ResponseWriter, r *htt
 		return
 	}
 
-	inlineObject := InlineObject{}
+	inlineObject := AnswerPayload{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&inlineObject); err != nil {
