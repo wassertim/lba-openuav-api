@@ -1,0 +1,199 @@
+openapi: 3.0.2
+info:
+  description: Questions and answers of LBA OpenUAV for preparing to the exam.
+  title: LBA OpenUAV Questions
+  version: "1.0"
+servers:
+- description: local
+  url: http://localhost:4010
+paths:
+  /questions:
+    get:
+      description: Get all questions
+      operationId: getAllQuestions
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+              - id: 42
+                text: What is the wheather today, google
+                questionType: MultipleChoice
+                structure:
+                  id: 468
+                  text: 7.2.4 (iv) evaluation of the height of the UA
+                answers:
+                - id: 615
+                  text: Good
+                  isCorrect: false
+                - id: 616
+                  text: bad
+                  isCorrect: true
+              - id: 42
+                text: What is the wheather today, google
+                questionType: MultipleChoice
+                structure:
+                  id: 468
+                  text: 7.2.4 (iv) evaluation of the height of the UA
+                answers:
+                - id: 615
+                  text: Good
+                  isCorrect: false
+                - id: 616
+                  text: bad
+                  isCorrect: true
+              schema:
+                items:
+                  $ref: '#/components/schemas/Question'
+                type: array
+          description: All Questions
+  /questions/one:
+    get:
+      operationId: getOneQuestion
+      parameters:
+      - explode: true
+        in: query
+        name: type
+        required: true
+        schema:
+          enum:
+          - FIRST_UNANSWERED
+          - LAST_UNANSWERED
+          - RANDOM_UNANSWERED
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+          description: Returns a question
+  /questions/one/{questionId}:
+    get:
+      operationId: getQuestionById
+      parameters:
+      - explode: false
+        in: path
+        name: questionId
+        required: false
+        schema:
+          example: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+          description: Returns a question
+    put:
+      description: Set answers
+      operationId: setQuestionAnswered
+      parameters:
+      - explode: false
+        in: path
+        name: questionId
+        required: false
+        schema:
+          example: 1
+          type: integer
+        style: simple
+      requestBody:
+        $ref: '#/components/requestBodies/inline_object'
+        content:
+          application/json:
+            schema:
+              properties:
+                answerId:
+                  type: integer
+              type: object
+      responses:
+        "204":
+          description: Answer updated
+components:
+  requestBodies:
+    inline_object:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_object'
+  schemas:
+    QuestionAnswer:
+      properties:
+        id:
+          example: 615
+          type: integer
+        text:
+          example: very bad
+          type: string
+        guessedAsCorrect:
+          nullable: true
+          type: boolean
+        isCorrect:
+          example: true
+          nullable: true
+          type: boolean
+      type: object
+    Question:
+      example:
+        answers:
+        - id: 615
+          text: Good
+          isCorrect: false
+          guessedAsCorrect: true
+        - id: 616
+          text: bad
+          isCorrect: true
+          guessedAsCorrect: false
+        id: 42
+        text: What is the wheather today, google
+        questionType: MultipleChoice
+        structure:
+          id: 468
+          text: 7.2.4 (iv) evaluation of the height of the UA
+      properties:
+        id:
+          example: 42
+          type: integer
+        text:
+          example: What is the wheather today, google
+          type: string
+        questionType:
+          enum:
+          - MultipleChoice
+          type: string
+        structure:
+          $ref: '#/components/schemas/Question_structure'
+        answers:
+          example:
+          - id: 615
+            text: Good
+            isCorrect: false
+            guessedAsCorrect: true
+          - id: 616
+            text: bad
+            isCorrect: true
+            guessedAsCorrect: false
+          items:
+            $ref: '#/components/schemas/QuestionAnswer'
+          type: array
+      type: object
+    inline_object:
+      properties:
+        answerId:
+          type: integer
+      type: object
+    Question_structure:
+      example:
+        id: 468
+        text: 7.2.4 (iv) evaluation of the height of the UA
+      properties:
+        id:
+          example: 468
+          type: integer
+        text:
+          example: 7.2.4 (iv) evaluation of the height of the UA
+          type: string
+      type: object

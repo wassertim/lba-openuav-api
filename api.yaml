@@ -1,0 +1,170 @@
+openapi: '3.0.2'
+info:
+  title: LBA OpenUAV Questions
+  version: '1.0'
+  description: Questions and answers of LBA OpenUAV for preparing to the exam.
+servers:
+  - url: http://localhost:4010
+    description: local
+paths:
+  /questions:
+    get:
+      operationId: getAllQuestions
+      description: Get all questions
+      responses:
+        '200':
+          description: All Questions
+          content:
+            application/json:
+              example: [
+                {
+                  "id": 42,
+                  "text": "What is the wheather today, google",
+                  "questionType": "MultipleChoice",
+                  "structure": {
+                    "id": 468,
+                    "text": "7.2.4 (iv) evaluation of the height of the UA"
+                  },
+                  "answers": [
+                    {
+                      "id": 615,
+                      "text": "Good",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": 616,
+                      "text": "bad",
+                      "isCorrect": true
+                    }
+                  ]
+                },
+                {
+                  "id": 42,
+                  "text": "What is the wheather today, google",
+                  "questionType": "MultipleChoice",
+                  "structure": {
+                    "id": 468,
+                    "text": "7.2.4 (iv) evaluation of the height of the UA"
+                  },
+                  "answers": [
+                    {
+                      "id": 615,
+                      "text": "Good",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": 616,
+                      "text": "bad",
+                      "isCorrect": true
+                    }
+                  ]
+                }
+              ]
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Question"
+  /questions/one:
+    parameters:
+      - in: query
+        name: type
+        required: true
+        schema:
+          type: string
+          enum:
+            - FIRST_UNANSWERED
+            - LAST_UNANSWERED
+            - RANDOM_UNANSWERED
+    get:
+      operationId: getOneQuestion
+      responses:
+        200:
+          description: Returns a question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+  /questions/one/{questionId}:
+    parameters:
+      - in: path
+        name: questionId
+        schema:
+          type: integer
+          example: 1
+    get:
+      operationId: getQuestionById
+      responses:
+        200:
+          description: Returns a question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+    put:
+      operationId: setQuestionAnswered
+      description: Set answers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answerId:
+                  type: integer
+      responses:
+        '204':
+          description: 'Answer updated'
+components:
+  schemas:
+    QuestionAnswer:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 615
+        text:
+          type: string
+          example: very bad
+        guessedAsCorrect:
+          type: boolean
+          nullable: true
+        isCorrect:
+          type: boolean
+          nullable: true
+          example: true
+    Question:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 42
+        text:
+          example: What is the wheather today, google
+          type: string
+        questionType:
+          type: string
+          enum:
+            - MultipleChoice
+        structure:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 468
+            text:
+              type: string
+              example: 7.2.4 (iv) evaluation of the height of the UA
+        answers:
+          type: array
+          example:
+            - id: 615
+              text: Good
+              isCorrect: false
+              guessedAsCorrect: true
+            - id: 616
+              text: bad
+              isCorrect: true
+              guessedAsCorrect: false
+          items:
+            $ref: "#/components/schemas/QuestionAnswer"
+
