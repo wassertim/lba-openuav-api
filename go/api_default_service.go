@@ -23,36 +23,19 @@ import (
 // This service should implement the business logic for every endpoint for the DefaultApi API.
 // Include any external packages or services that will be required by this service.
 type DefaultApiService struct {
-	mongoClient *mongo.Client
+	db *mongo.Collection
 }
 
 // NewDefaultApiService creates a default api service
 func NewDefaultApiService(mongoClient *mongo.Client) DefaultApiServicer {
 	return &DefaultApiService{
-		mongoClient: mongoClient,
+		db: mongoClient.Database("lba").Collection("questions-all"),
 	}
 }
 
 // GetAllQuestions -
 func (s *DefaultApiService) GetAllQuestions(ctx context.Context) (ImplResponse, error) {
-	collection := s.mongoClient.Database("lba").Collection("questions-all")
-	results := []*Question{}
-	findOptions := options.Find()
-	allQuery := bson.D{{}}
-	cur, err := collection.Find(context.TODO(), allQuery, findOptions)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for cur.Next(context.TODO()) {
-		var elem Question
-		err := cur.Decode(&elem)
-		if err != nil {
-			log.Fatal(err)
-		}
-		results = append(results, &elem)
-	}
-
-	return Response(200, results), nil
+	return Response(200, find(s, bson.D{{}}, options.Find())), nil
 }
 
 // GetOneQuestion -
@@ -61,9 +44,7 @@ func (s *DefaultApiService) GetOneQuestion(ctx context.Context, type_ string) (I
 	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	//TODO: Uncomment the next line to return response Response(200, Question{}) or use other options such as http.Ok ...
-	//return Response(200, Question{}), nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("GetOneQuestion method not implemented")
+	return Response(200, Question{}), nil
 }
 
 // GetQuestionById -
@@ -72,9 +53,7 @@ func (s *DefaultApiService) GetQuestionById(ctx context.Context, questionId int3
 	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	//TODO: Uncomment the next line to return response Response(200, Question{}) or use other options such as http.Ok ...
-	//return Response(200, Question{}), nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("GetQuestionById method not implemented")
+	return Response(200, findOne(s, questionId)), nil
 }
 
 // SetQuestionAnswered -
@@ -86,4 +65,31 @@ func (s *DefaultApiService) SetQuestionAnswered(ctx context.Context, questionId 
 	//return Response(204, nil),nil
 
 	return Response(http.StatusNotImplemented, nil), errors.New("SetQuestionAnswered method not implemented")
+}
+
+func findOne(s *DefaultApiService, questionId int32) Question {
+	var elem Question
+	if err := s.db.FindOne(context.TODO(), bson.D{{"_id", questionId}}).Decode(&elem); err != nil {
+		log.Fatal(err)
+	}
+
+	return elem
+}
+
+func find(s *DefaultApiService, allQuery bson.D, findOptions *options.FindOptions) []*Question {
+	cur, err := s.db.Find(context.TODO(), allQuery, findOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+	results := []*Question{}
+	for cur.Next(context.TODO()) {
+		var elem Question
+		err := cur.Decode(&elem)
+		if err != nil {
+			log.Fatal(err)
+		}
+		results = append(results, &elem)
+	}
+
+	return results
 }
