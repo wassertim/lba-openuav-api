@@ -54,9 +54,8 @@ func (s *DefaultApiService) GetQuestionById(ctx context.Context, questionId int3
 func (s *DefaultApiService) SetQuestionAnswered(ctx context.Context, questionId int32, answer AnswerPayload) (ImplResponse, error) {
 	filter := bson.D{{"_id", questionId}, {"answers.id", answer.AnswerId}}
 	update := bson.D{
-		{"$set", bson.D{
-			{"answers.$.guessedAsCorrect", true},
-		}},
+		{"$set", bson.D{{"answers.$.guessedAsCorrect", true}}},
+		{"$set", bson.D{{"comment", answer.Comment}}},
 	}
 	updateOne(s, filter, update)
 	return Response(204, nil), nil

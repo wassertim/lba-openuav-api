@@ -19,6 +19,8 @@ type Question struct {
 
 	StructureText string `json:"questionStructure,omitempty"`
 
+	Comment string `json:"comment,omitempty"`
+
 	StructureId int32 `json:"structureId,omitempty"`
 
 	Answers []QuestionAnswer `json:"answers,omitempty"`
