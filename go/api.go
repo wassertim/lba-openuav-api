@@ -32,7 +32,7 @@ type DefaultApiRouter interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type DefaultApiServicer interface {
-	GetAllQuestions(context.Context) (ImplResponse, error)
+	GetAllQuestions(context.Context, string) (ImplResponse, error)
 	GetOneQuestion(context.Context, string) (ImplResponse, error)
 	GetQuestionById(context.Context, int32) (ImplResponse, error)
 	SetQuestionAnswered(context.Context, int32, AnswerPayload) (ImplResponse, error)

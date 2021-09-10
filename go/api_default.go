@@ -79,7 +79,9 @@ func (c *DefaultApiController) Routes() Routes {
 
 // GetAllQuestions -
 func (c *DefaultApiController) GetAllQuestions(w http.ResponseWriter, r *http.Request) {
-	result, err := c.service.GetAllQuestions(r.Context())
+	query := r.URL.Query()
+	type_ := query.Get("type")
+	result, err := c.service.GetAllQuestions(r.Context(), type_)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

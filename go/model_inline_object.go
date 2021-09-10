@@ -12,6 +12,7 @@ package openapi
 type AnswerPayload struct {
 	AnswerId int32 `json:"answerId,omitempty"`
 	Comment string `json:"comment,omitempty"`
+	Url string `json:"url,omitempty"`
 }
 
 // AssertInlineObjectRequired checks if the required fields are not zero-ed

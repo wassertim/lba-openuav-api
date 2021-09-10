@@ -32,11 +32,22 @@ func NewDefaultApiService(mongoClient *mongo.Client) DefaultApiServicer {
 }
 
 // GetAllQuestions -
-func (s *DefaultApiService) GetAllQuestions(ctx context.Context) (ImplResponse, error) {
+func (s *DefaultApiService) GetAllQuestions(ctx context.Context, type_ string) (ImplResponse, error) {
+	if type_ == "ALL_UNANSWERED" {
+		return s.GetAllUnansweredQuestions(ctx, type_)
+	}
 	return Response(200, find(s, bson.D{{}}, options.Find())), nil
 }
 
 // GetOneQuestion -
+func (s *DefaultApiService) GetAllUnansweredQuestions(ctx context.Context, type_ string) (ImplResponse, error) {
+	questions := find(s, bson.D{
+		{"answers.guessedAsCorrect", bson.D{{"$ne", true}}},
+		{"answers.correctAnswer", bson.D{{"$ne", true}}},
+	}, options.Find())
+	return Response(200, questions), nil
+}
+
 func (s *DefaultApiService) GetOneQuestion(ctx context.Context, type_ string) (ImplResponse, error) {
 	question := findOne(s, bson.D{
 		{"answers.guessedAsCorrect", bson.D{{"$ne", true}}},
@@ -56,6 +67,7 @@ func (s *DefaultApiService) SetQuestionAnswered(ctx context.Context, questionId 
 	update := bson.D{
 		{"$set", bson.D{{"answers.$.guessedAsCorrect", true}}},
 		{"$set", bson.D{{"comment", answer.Comment}}},
+		{"$set", bson.D{{"url", answer.Url}}},
 	}
 	updateOne(s, filter, update)
 	return Response(204, nil), nil
